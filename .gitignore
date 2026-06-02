@@ -1,0 +1,36 @@
+# Environment and secrets
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node / Expo
+node_modules/
+.expo/
+.expo-shared/
+.expo-check/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local archives and generated bundles
+*.zip
+*.tar
+*.gz
+
+# Logs
+*.log
+
+# Raw datasets
+Skrining_Asthma_Benny/backend/data/

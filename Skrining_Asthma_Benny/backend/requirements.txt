@@ -1,0 +1,10 @@
+flask
+flask-cors
+werkzeug
+joblib
+numpy
+scikit-learn
+lightgbm
+xgboost
+mysql-connector-python
+PyJWT
