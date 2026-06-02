@@ -53,16 +53,16 @@ python server.py
 Server berjalan di: `http://0.0.0.0:5000`
 
 ### Step 3 — Konfigurasi IP di Aplikasi
-Buka file `src/utils/constants.js` dan ubah `API_BASE_URL`:
-```javascript
-// Jika menjalankan di emulator Android:
-export const API_BASE_URL = 'http://10.0.2.2:5000';
+Buat file `.env` di root project lalu isi `EXPO_PUBLIC_API_BASE_URL` sesuai device yang dipakai:
+```env
+# Android emulator
+EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:5000
 
-// Jika menjalankan di HP fisik (ganti dengan IP komputer kamu):
-export const API_BASE_URL = 'http://192.168.1.XXX:5000';
+# HP fisik dalam jaringan yang sama
+# EXPO_PUBLIC_API_BASE_URL=http://192.168.1.XXX:5000
 
-// Jika menjalankan di web/browser:
-export const API_BASE_URL = 'http://localhost:5000';
+# Web/browser lokal
+# EXPO_PUBLIC_API_BASE_URL=http://localhost:5000
 ```
 
 ### Step 4 — Jalankan Aplikasi React Native
@@ -153,3 +153,55 @@ npx expo start
 
 ## ⚕️ Disclaimer
 Aplikasi ini adalah alat bantu skrining berbasis data dan **tidak menggantikan** diagnosis medis oleh tenaga kesehatan profesional.
+
+---
+
+## Railway Deployment
+
+Railway paling cocok dipakai untuk **backend Flask** pada project ini. Aplikasi Expo/React Native tetap dijalankan atau dibuild terpisah, lalu diarahkan ke URL backend Railway.
+
+### 1. Deploy repository ke Railway
+1. Push project ini ke GitHub.
+2. Di Railway, pilih **New Project**.
+3. Pilih **Deploy from GitHub repo** dan hubungkan repository ini.
+
+Project ini sudah disiapkan memakai `Procfile` berikut:
+
+```procfile
+web: gunicorn --chdir backend server:app --bind 0.0.0.0:$PORT --timeout 120
+```
+
+### 2. Isi environment variables backend
+
+Tambahkan variable berikut di menu **Variables** Railway:
+
+```env
+MYSQL_HOST=...
+MYSQL_PORT=3306
+MYSQL_USER=...
+MYSQL_PASSWORD=...
+MYSQL_DATABASE=...
+JWT_SECRET=isi-dengan-secret-acak-yang-panjang
+JWT_EXPIRY_HOURS=24
+FLASK_DEBUG=false
+```
+
+Catatan:
+- Isi konfigurasi MySQL jika fitur login, riwayat skrining, dan export PDF berbasis akun ingin aktif.
+- Endpoint model seperti `/health`, `/model-info`, dan `/predict` tetap bisa jalan walau MySQL belum siap, tetapi endpoint auth dan riwayat akan gagal.
+
+### 3. Hubungkan frontend Expo ke Railway
+
+Buat file `.env` di root project:
+
+```env
+EXPO_PUBLIC_API_BASE_URL=https://namaproject-production.up.railway.app
+```
+
+Lalu restart Expo:
+
+```bash
+npx expo start -c
+```
+
+Frontend sekarang akan membaca backend URL dari environment, bukan IP lokal yang hardcode di source code.

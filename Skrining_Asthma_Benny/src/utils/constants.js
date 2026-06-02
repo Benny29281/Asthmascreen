@@ -3,11 +3,9 @@
 // Benny Dwiyanto - 535220012
 // ============================================================
 
-// Ganti BASE_URL dengan IP perangkat yang menjalankan Flask.
-export const API_BASE_URL = 'http://192.168.1.5:5000';
-// export const API_BASE_URL = 'http://172.16.59.224:5000';
-// export const API_BASE_URL = 'http://172.18.215.222:5000';
-// export const API_BASE_URL = 'http://:192.168.110.57:5000';
+// Pakai EXPO_PUBLIC_API_BASE_URL agar URL backend bisa diganti per environment.
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL || 'http://127.0.0.1:5000';
 
 export const COLORS = {
   bg: '#F4FBFF',

@@ -1672,6 +1672,8 @@ def export_screening_pdf(screening_id):
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", "5000"))
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     mysql_status = check_mysql_health()
     print("=" * 60)
     print("  AsthmaScreen - Flask Backend")
@@ -1683,6 +1685,6 @@ if __name__ == "__main__":
     else:
         print(f"  Model gagal dimuat: {LOAD_ERROR}")
     print(f"  MySQL Auth    : {mysql_status['message']}")
-    print("  Server        : http://0.0.0.0:5000")
+    print(f"  Server        : http://0.0.0.0:{port}")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
