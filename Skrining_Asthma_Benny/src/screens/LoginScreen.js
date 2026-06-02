@@ -105,7 +105,10 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-function InputField({ label, icon, ...props }) {
+function InputField({ label, icon, secureTextEntry, ...props }) {
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const isPasswordField = Boolean(secureTextEntry);
+
   return (
     // Komponen input kecil ini dipakai ulang agar field login tetap konsisten.
     <View style={styles.fieldWrap}>
@@ -115,8 +118,22 @@ function InputField({ label, icon, ...props }) {
         <TextInput
           placeholderTextColor={COLORS.textMuted}
           style={styles.input}
+          secureTextEntry={isPasswordField ? !passwordVisible : false}
           {...props}
         />
+        {isPasswordField ? (
+          <Pressable
+            onPress={() => setPasswordVisible((current) => !current)}
+            hitSlop={8}
+            style={styles.toggleButton}
+          >
+            <MaterialCommunityIcons
+              name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={COLORS.primaryLight}
+            />
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -187,6 +204,9 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.textPrimary,
     fontSize: 15,
+  },
+  toggleButton: {
+    padding: 2,
   },
   primaryButton: {
     minHeight: 56,
