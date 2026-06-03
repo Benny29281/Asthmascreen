@@ -19,4 +19,4 @@ COPY backend /app/backend
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--chdir", "backend", "server:app", "--bind", "0.0.0.0:8080", "--timeout", "120"]
+CMD ["sh", "-c", "gunicorn --chdir backend server:app --bind 0.0.0.0:${PORT:-8080} --timeout 120"]
