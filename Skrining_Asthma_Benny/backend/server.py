@@ -802,14 +802,15 @@ def load_artifacts():
             return {}
         return sorted(candidates, key=lambda item: item.get("composite", 0), reverse=True)[0]
 
-    def optional_models_for(dataset, model_files, default_threshold):
+    def optional_model_specs_for(dataset, model_files, default_threshold):
         optional_models = {}
         for key, filename in model_files.items():
             path = os.path.join(MODEL_DIR, filename)
             if os.path.exists(path):
                 result_meta = result_for(dataset, key)
                 optional_models[key] = {
-                    "model": joblib.load(path),
+                    "path": path,
+                    "model": None,
                     "threshold": float(result_meta.get("threshold", default_threshold)),
                 }
         return optional_models
@@ -831,7 +832,7 @@ def load_artifacts():
             "threshold": threshold,
             "model_name": best_model_name,
             "dataset": "local",
-            "optional_models": optional_models_for(
+            "optional_models": optional_model_specs_for(
                 "local",
                 {
                     "LightGBM": "model_lgbm_local.pkl",
@@ -846,13 +847,15 @@ def load_artifacts():
     asthma_scaler_path = os.path.join(MODEL_DIR, "scaler_asthma.pkl")
     if os.path.exists(asthma_model_path) and os.path.exists(asthma_scaler_path):
         datasets["asthma"] = {
-            "model": joblib.load(asthma_model_path),
-            "scaler": joblib.load(asthma_scaler_path),
+            "model": None,
+            "model_path": asthma_model_path,
+            "scaler": None,
+            "scaler_path": asthma_scaler_path,
             "feature_names": ASTHMA_FEATURES,
             "threshold": asthma_threshold,
             "model_name": asthma_label,
             "dataset": "asthma",
-            "optional_models": optional_models_for(
+            "optional_models": optional_model_specs_for(
                 "asthma",
                 {
                     "LightGBM": "model_lgbm_asthma.pkl",
@@ -873,6 +876,33 @@ def load_artifacts():
         "datasets": datasets,
         "optional_models": datasets.get(best_dataset, datasets["local"])["optional_models"],
     }
+
+
+def ensure_dataset_runtime_loaded(dataset_artifacts):
+    """Lazy-load model/scaler untuk dataset non-default agar startup Railway lebih ringan dan tahan error."""
+    if dataset_artifacts.get("model") is None:
+        model_path = dataset_artifacts.get("model_path")
+        if not model_path:
+            raise RuntimeError("Path model dataset tidak tersedia.")
+        dataset_artifacts["model"] = joblib.load(model_path)
+
+    if dataset_artifacts.get("scaler") is None:
+        scaler_path = dataset_artifacts.get("scaler_path")
+        if not scaler_path:
+            raise RuntimeError("Path scaler dataset tidak tersedia.")
+        dataset_artifacts["scaler"] = joblib.load(scaler_path)
+
+    return dataset_artifacts
+
+
+def ensure_optional_model_loaded(optional_model_config):
+    """Lazy-load model pembanding hanya saat benar-benar dipakai oleh endpoint prediksi."""
+    if optional_model_config.get("model") is None:
+        model_path = optional_model_config.get("path")
+        if not model_path:
+            raise RuntimeError("Path model pembanding tidak tersedia.")
+        optional_model_config["model"] = joblib.load(model_path)
+    return optional_model_config["model"]
 
 
 try:
@@ -1119,7 +1149,7 @@ def resolve_dataset_artifacts(dataset_name):
     datasets = ARTIFACTS.get("datasets", {})
     if key not in datasets:
         raise ValueError(f'Model dataset "{dataset_name}" tidak tersedia.')
-    return datasets[key]
+    return ensure_dataset_runtime_loaded(datasets[key])
 
 
 @app.route("/health", methods=["GET"])
@@ -1426,8 +1456,9 @@ def predict():
     comparison = {}
     for name, config in dataset_artifacts["optional_models"].items():
         try:
+            comparison_model = ensure_optional_model_loaded(config)
             _, model_probabilities = predict_with_majority_probability(
-                config["model"],
+                comparison_model,
                 feature_matrix,
             )
             comparison[name] = {
