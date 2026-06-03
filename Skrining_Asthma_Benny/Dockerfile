@@ -16,7 +16,10 @@ RUN python -m pip install --upgrade pip \
     && pip install --no-cache-dir -r /app/backend/requirements.txt
 
 COPY backend /app/backend
+COPY start.sh /app/start.sh
+
+RUN chmod +x /app/start.sh
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "gunicorn --chdir backend server:app --bind 0.0.0.0:${PORT:-8080} --timeout 120"]
+CMD ["/app/start.sh"]
