@@ -1,2 +1,5 @@
+[providers]
+python = "3.12"
+
 [phases.setup]
 aptPkgs = ["libgomp1"]
