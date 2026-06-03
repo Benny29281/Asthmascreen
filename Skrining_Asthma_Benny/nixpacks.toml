@@ -1,4 +1,5 @@
 providers = ["python"]
 
 [phases.setup]
+nixPkgs = ["python3", "python3Packages.pip", "gcc"]
 aptPkgs = ["libgomp1"]
