@@ -21,8 +21,21 @@ export const createAuthApi = (token) =>
   });
 
 // Satukan cara membaca pesan error agar semua screen mendapat format yang konsisten.
-const extractErrorMessage = (error, fallback) =>
-  error.response?.data?.message || error.message || fallback;
+const extractErrorMessage = (error, fallback) => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+
+  if (error.code === 'ECONNABORTED') {
+    return `Koneksi ke server timeout. Cek backend di ${API_BASE_URL}.`;
+  }
+
+  if (!error.response) {
+    return `Tidak dapat terhubung ke server (${API_BASE_URL}). Periksa EXPO_PUBLIC_API_BASE_URL dan pastikan backend aktif.`;
+  }
+
+  return error.message || fallback;
+};
 
 // ─── Auth (tidak butuh token) ──────────────────────────────
 
