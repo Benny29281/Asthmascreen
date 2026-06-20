@@ -1,0 +1,13 @@
+﻿Dataset,Bagian Data,Kelas,Jumlah,Persentase (%)
+Dataset A,Data Latih Sebelum ADASYN,Tidak Asma,1814,94.82
+Dataset A,Data Latih Sebelum ADASYN,Asma,99,5.18
+Dataset A,Data Testing,Tidak Asma,454,94.78
+Dataset A,Data Testing,Asma,25,5.22
+Dataset A,Data Latih Setelah ADASYN,Tidak Asma,1814,49.89
+Dataset A,Data Latih Setelah ADASYN,Asma,1822,50.11
+Dataset B,Data Latih Sebelum ADASYN,Tidak Asma,10,5.71
+Dataset B,Data Latih Sebelum ADASYN,Asma,165,94.29
+Dataset B,Data Testing,Tidak Asma,2,4.55
+Dataset B,Data Testing,Asma,42,95.45
+Dataset B,Data Latih Setelah ADASYN,Tidak Asma,165,50.0
+Dataset B,Data Latih Setelah ADASYN,Asma,165,50.0
